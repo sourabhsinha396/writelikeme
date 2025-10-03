@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Style Mimic{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block additional_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+    <nav class="bg-blue-700 text-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold">
+                        <i class="fas fa-pen-fancy mr-2"></i>Sema Text Analyzer
+                    </a>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <a href="/" class="px-3 py-2 hover:bg-blue-600 rounded transition">Home</a>
+                    {% if is_authenticated %}
+                        <div class="relative group">
+                            <button class="flex items-center px-3 py-2 hover:bg-blue-600 rounded transition">
+                                <i class="fas fa-user-circle mr-2"></i>{{ user.username }}
+                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
+                            </button>
+                            <div class="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
+                                <a href="/logout" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="/login" class="px-3 py-2 hover:bg-blue-600 rounded transition">
+                            <i class="fas fa-sign-in-alt mr-1"></i>Login
+                        </a>
+                        <a href="/signup" class="px-3 py-2 bg-white text-blue-700 hover:bg-gray-100 rounded transition">
+                            <i class="fas fa-user-plus mr-1"></i>Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex-grow max-w-6xl mx-auto px-4 py-8">
+        {% if error %}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <p>{{ error }}</p>
+        </div>
+        {% endif %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="text-center text-gray-500 py-6 border-t border-gray-200">
+        <div class="max-w-6xl mx-auto px-4">
+            <p>Style Mimic - Write like anyone</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

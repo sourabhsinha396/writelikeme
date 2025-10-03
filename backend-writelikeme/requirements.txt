@@ -1,0 +1,28 @@
+fastapi==0.115.12
+uvicorn==0.27.1
+python-multipart==0.0.7
+jinja2==3.1.3
+SQLAlchemy==2.0.39
+openai>=1.6.0
+nltk==3.8.1
+numpy==1.26.3
+python-dotenv==1.0.0
+itsdangerous==2.1.2  # Required for SessionMiddleware
+passlib==1.7.4  # For password hashing
+python-jose==3.3.0  # For JWT tokens
+email-validator==2.2.0  # For email validation
+bcrypt==4.1.2  # For password hashing
+email-validator==2.2.0
+alembic==1.15.1
+litellm==1.63.14
+langfuse==2.60.2
+sqladmin==0.20.1
+paypalrestsdk==1.13.3
+python-docx==1.1.2
+PyPDF2==3.0.1
+pytesseract==0.3.13
+pdf2image==1.17.0
+slowapi==0.1.9
+Authlib==1.5.1
+httpx==0.28.1
+psycopg2==2.9.10

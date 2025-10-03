@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Content - Style Mimic{% endblock %}
+
+{% block content %}
+<header class="text-center py-8 border-b border-gray-200 mb-8">
+    <h1 class="text-4xl font-bold text-blue-700 mb-2">Generate Content</h1>
+    <p class="text-lg text-gray-600">Create new content in the analyzed writing style</p>
+</header>
+
+<div class="bg-white rounded-lg shadow p-6">
+    {% if not generated_content %}
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-4">
+            <i class="fas fa-pencil-alt mr-2"></i>What would you like to write about?
+        </h2>
+        <form action="/generate" method="post">
+            <input type="hidden" name="profile_id" value="{{ profile_id }}">
+            
+            <div class="mb-6">
+                <label for="topic" class="block font-medium mb-2 text-gray-700">Topic or Prompt</label>
+                <textarea id="topic" name="topic" rows="3" required placeholder="Describe what you want the AI to write about..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+            
+            <div class="mb-6">
+                <label for="length" class="block font-medium mb-2 text-gray-700">Content Length</label>
+                <select id="length" name="length" class="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="short">Short (100-200 words)</option>
+                    <option value="medium" selected>Medium (300-500 words)</option>
+                    <option value="long">Long (700-1000 words)</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded shadow transition duration-200">
+                <i class="fas fa-magic mr-2"></i>Generate Content
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="mb-8">
+        <div class="mb-4">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">Generated Content</h2>
+            <p class="text-gray-500 italic">Topic: {{ topic }}</p>
+        </div>
+        
+        <div class="bg-gray-50 p-6 rounded mb-6 whitespace-pre-line leading-relaxed">
+            {{ generated_content|safe|replace('\n', '<br>') }}
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+            <button id="copy-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded shadow transition duration-200">
+                <i class="fas fa-copy mr-2"></i>Copy to Clipboard
+            </button>
+            <a href="/generate?profile_id={{ profile_id }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded shadow transition duration-200 text-center">
+                <i class="fas fa-sync-alt mr-2"></i>Try Another Topic
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-8">
+        <a href="/profile/{{ profile_id }}" class="text-blue-600 hover:underline">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Style Profile
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if generated_content %}
+<script>
+    // Copy to clipboard functionality
+    document.getElementById('copy-btn').addEventListener('click', function() {
+        const content = document.querySelector('.whitespace-pre-line').innerText;
+        navigator.clipboard.writeText(content).then(function() {
+            const btn = document.getElementById('copy-btn');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Copied!';
+            setTimeout(function() {
+                btn.innerHTML = '<i class="fas fa-copy mr-2"></i>Copy to Clipboard';
+            }, 2000);
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

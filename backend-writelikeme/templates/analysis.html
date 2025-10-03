@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Style Analysis - Style Mimic{% endblock %}
+
+{% block content %}
+<header class="text-center py-8 border-b border-gray-200 mb-8">
+    <h1 class="text-4xl font-bold text-blue-700 mb-2">Style Analysis Results</h1>
+    <p class="text-lg text-gray-600">We've analyzed your writing samples and created a style profile</p>
+</header>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Style Profile</h2>
+    
+    <div class="mb-8 pb-6 border-b border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Style Description</h3>
+        <p class="text-gray-700">{{ style_profile.description }}</p>
+    </div>
+    
+    <div class="mb-8 pb-6 border-b border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-700 mb-4">Style Metrics</h3>
+        
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold mb-2 text-blue-700">
+                    <i class="fas fa-text-width mr-2"></i>Sentence Structure
+                </h4>
+                <ul class="space-y-1">
+                    <li>Average sentence length: {{ "%.1f"|format(style_profile.sentence_stats.avg_length) }} words</li>
+                    <li>Shortest sentence: {{ style_profile.sentence_stats.min_length }} words</li>
+                    <li>Longest sentence: {{ style_profile.sentence_stats.max_length }} words</li>
+                    <li>Sentence length variation: {{ "%.1f"|format(style_profile.sentence_stats.std_dev) }}</li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold mb-2 text-blue-700">
+                    <i class="fas fa-book mr-2"></i>Vocabulary
+                </h4>
+                <ul class="space-y-1">
+                    <li>Vocabulary size: {{ style_profile.word_stats.vocabulary_size }} unique words</li>
+                    <li>Lexical diversity: {{ "%.2f"|format(style_profile.word_stats.lexical_diversity) }}</li>
+                    <li>Average word length: {{ "%.1f"|format(style_profile.word_stats.avg_length) }} characters</li>
+                </ul>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold mb-2 text-blue-700">
+                    <i class="fas fa-paragraph mr-2"></i>Paragraph Structure
+                </h4>
+                <ul class="space-y-1">
+                    <li>Average paragraph length: {{ "%.1f"|format(style_profile.structure_stats.avg_paragraph_sentences) }} sentences</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-8 pb-6 border-b border-gray-200">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xl font-semibold text-gray-700">Your Samples</h3>
+            <button id="add-sample-btn" class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-1 px-3 rounded shadow transition duration-200">
+                <i class="fas fa-plus mr-1"></i>Add Sample
+            </button>
+        </div>
+        
+        <div id="samples-list" class="space-y-4">
+            {% for sample in samples %}
+            <div class="bg-gray-50 p-4 rounded border border-gray-200">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="font-medium text-gray-700">
+                        {% if sample.source_type == "upload" %}
+                        <i class="fas fa-file-alt mr-2"></i>{{ sample.filename }}
+                        {% else %}
+                        <i class="fas fa-paste mr-2"></i>{{ sample.filename }}
+                        {% endif %}
+                    </div>
+                    <button class="text-red-500 hover:text-red-700" 
+                            onclick="deleteSample('{{ sample.id }}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="text-sm text-gray-500">Added {{ sample.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div id="add-sample-form" class="mt-4 hidden bg-blue-50 p-4 rounded border border-blue-200">
+            <h4 class="font-semibold mb-3 text-blue-700">Add New Sample</h4>
+            <form action="/add-sample" method="post" class="space-y-4">
+                <input type="hidden" name="profile_id" value="{{ profile_id }}">
+                
+                <div>
+                    <label for="new-sample-text" class="block text-sm font-medium text-gray-700 mb-1">Sample Text</label>
+                    <textarea id="new-sample-text" name="sample_text" rows="5" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              placeholder="Paste a new writing sample here..."></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-add-sample" 
+                            class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-1 px-3 rounded shadow transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded shadow transition duration-200">
+                        <i class="fas fa-plus mr-1"></i>Add Sample
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="mt-6">
+            <form action="/retrain" method="post">
+                <input type="hidden" name="profile_id" value="{{ profile_id }}">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded shadow transition duration-200">
+                    <i class="fas fa-sync-alt mr-2"></i>Re-train Style Profile
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mb-8 pb-6 border-b border-gray-200">
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Representative Excerpts</h3>
+        {% for excerpt in style_profile.excerpts %}
+            <div class="bg-gray-50 p-4 border-l-4 border-blue-500 rounded mb-4">
+                <blockquote class="italic">{{ excerpt }}</blockquote>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-3">Ready to Generate Content?</h3>
+        <p class="mb-4">Now that we've analyzed the style, you can generate new content in the same style.</p>
+        <a href="/generate?profile_id={{ profile_id }}" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded shadow transition duration-200">
+            <i class="fas fa-magic mr-2"></i>Generate Content
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('add-sample-btn').addEventListener('click', function() {
+        document.getElementById('add-sample-form').classList.toggle('hidden');
+    });
+    
+    document.getElementById('cancel-add-sample').addEventListener('click', function() {
+        document.getElementById('add-sample-form').classList.add('hidden');
+    });
+    
+    function deleteSample(sampleId) {
+        if (confirm("Are you sure you want to delete this sample?")) {
+            // Send a request to delete the sample
+            fetch(`/delete-sample/${sampleId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the page
+                    window.location.reload();
+                } else {
+                    alert("Failed to delete sample");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred");
+            });
+        }
+    }
+</script>
+{% endblock %}
