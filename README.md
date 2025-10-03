@@ -2,6 +2,8 @@
 
 An AI-powered writing style analyzer and content generator that learns your unique writing style and creates new content that matches it.
 
+![writelikeme-demo](assets/demo-image.png)
+
 ## Features
 
 - **Writing Style Analysis**: Upload text samples (TXT, DOCX, PDF) or paste text to create unique writing profiles
